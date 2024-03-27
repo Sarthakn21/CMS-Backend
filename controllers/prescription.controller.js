@@ -1,5 +1,7 @@
 import Patient from "../models/patient.js";
 import Prescription from "../models/Prescription.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { ApiError } from "../utils/ApiError.js";
 
 //function to get all prescription
 //method : Get
@@ -7,9 +9,11 @@ import Prescription from "../models/Prescription.js";
 const getAllPrescription = async (req, res) => {
   try {
     const prescriptions = await Prescription.find();
-    res.status(200).json({ total: prescriptions.length, prescriptions });
+    res
+      .status(200)
+      .json(new ApiResponse(200, prescriptions, "Fetched all prescriptions"));
   } catch (error) {
-    res.status(500).json({ message: "Failed to retrieve prescription", error });
+    return res.status(error.statusCode || 500).json({ error: error.message });
   }
 };
 
@@ -22,14 +26,16 @@ const getPrecrptionById = async (req, res) => {
     const patient = await Patient.findById(patientId);
     //check if patient exist
     if (!patient) {
-      return res.status(404).json({ message: "No such patient" });
+      throw new ApiError(404, "No such patient");
     }
     const prescriptions = await Prescription.find({ patientId: patientId });
     res
       .status(200)
-      .json({ total: prescriptions.length, name: patient.name, prescriptions });
+      .json(
+        new ApiResponse(200, prescriptions, "Fetched prescription successful")
+      );
   } catch (error) {
-    res.status(500).json({ message: "Failed to retrieve prescription", error });
+    return res.status(error.statusCode || 500).json({ error: error.message });
   }
 };
 
@@ -45,7 +51,7 @@ const addPrescription = async (req, res) => {
     // Check if the patient exists
     const patient = await Patient.findById(patientId);
     if (!patient) {
-      return res.status(404).json({ message: "User not found" });
+      throw new ApiError(404, "User not found");
     }
 
     // Create the prescription
@@ -57,15 +63,13 @@ const addPrescription = async (req, res) => {
 
     res
       .status(201)
-      .json({ message: "Prescription added successfully", prescription });
+      .json(new ApiResponse(201, "Prescription added successfully"));
   } catch (error) {
     if (error.name === "ValidationError") {
       const errors = Object.values(error.errors).map((err) => err.message);
       return res.status(400).json({ message: "Validation error", errors });
     } else {
-      return res
-        .status(500)
-        .json({ message: "Failed to add prescription", error: error.message });
+      return res.status(error.statusCode || 500).json({ error: error.message });
     }
   }
 };
@@ -80,17 +84,14 @@ const deletePrescriptionById = async (req, res) => {
     // Check if the prescription exists
     const prescription = await Prescription.findById(id);
     if (!prescription) {
-      return res.status(404).json({ message: "Prescription not found" });
+      throw new ApiError(404, "No prescription found to id");
     }
-
     await prescription.deleteOne();
     return res
       .status(200)
-      .json({ message: "Prescription deleted successfully" });
+      .json(new ApiResponse(200, "Prescription deleted successfully"));
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Failed to delete prescription", error: error.message });
+    return res.status(error.statusCode || 500).json({ error: error.message });
   }
 };
 export {

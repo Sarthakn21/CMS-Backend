@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 const patientSchema = new mongoose.Schema({
     patientId: {
         type: String,
-        required: true
     },
     name: {
         type: String,

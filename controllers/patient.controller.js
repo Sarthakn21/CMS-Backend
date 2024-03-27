@@ -1,15 +1,18 @@
 import Patient from "../models/patient.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
-//fnctiont to create new appointment
+//fnctiont to create new patient
 //method : Post
 //api-url:http://localhost:5000/api/patients/register
 const createNewPatient = async (req, res) => {
   try {
-    const { patientId, name, contactNumber, age, weight, gender, Dob } =
-      req.body;
+    const { name, contactNumber, age, weight, gender, Dob } = req.body;
+    if (!name || !contactNumber || !age || !weight || !gender || !Dob) {
+      throw new ApiError(400, "All fields are required to create new patient");
+    }
 
     const patient = await Patient.create({
-      patientId,
       name,
       contactNumber,
       age,
@@ -18,14 +21,16 @@ const createNewPatient = async (req, res) => {
       Dob,
     });
 
-    res.status(201).json({ message: "Patient created successfully", patient });
+    res
+      .status(201)
+      .json(new ApiResponse(201, { patient }, "Patient created successfully"));
   } catch (error) {
     if (error.name == "ValidationError") {
       const errors = Object.values(error.errors).map((err) => err.message);
       res.status(400).json({ message: "Validation error", errors });
     } else {
       res
-        .status(500)
+        .status(error.statusCode || 500)
         .json({ message: "Failed to create patient", error: error.message });
     }
   }
@@ -37,11 +42,15 @@ const createNewPatient = async (req, res) => {
 const getAllPatient = async (req, res) => {
   try {
     const patients = await Patient.find();
-    res.status(200).json({ total: patients.length, patients: patients });
-    console.log(patients[0]._id.toString());
-    // res.status(200).json(patients);
+    res
+      .status(200)
+      .json(
+        new ApiResponse(200, patients, "fetched all patients successfully")
+      );
   } catch (error) {
-    res.status(500).json({ message: "Failed to retrieve patients", error });
+    res
+      .status(error.statusCode || 500)
+      .json({ message: "Failed to retrieve patients", error });
   }
 };
 
@@ -55,10 +64,10 @@ const getPatientById = async (req, res) => {
     // const patient = await Patient.findOne({ patientId: id });
 
     if (!patient) {
-      return res.status(404).json({ message: "Patient Not Found" });
-    }
+      throw new ApiError(404, "No patient found")
 
-    res.status(200).json(patient);
+    }
+    res.status(200).json(new ApiResponse(200,patient,"fetched patient successfully"));
   } catch (error) {
     res
       .status(500)
@@ -72,15 +81,16 @@ const getPatientById = async (req, res) => {
 const updateById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { patientId, name, contactNumber, age, weight, gender, Dob } =
+    const {name, contactNumber, age, weight, gender, Dob } =
       req.body;
+    if (!name || !contactNumber || !age || !weight || !gender || !Dob) {
+      throw new ApiError(400,"All fields are required to update patient");
+    }
     const patient = await Patient.findById(id);
 
     if (!patient) {
-      return res.status(404).json({ message: "Patient Not Found" });
+      throw new ApiError(404, "No patient found");
     }
-
-    patient.patientId = patientId;
     patient.name = name;
     patient.contactNumber = contactNumber;
     patient.age = age;
@@ -90,12 +100,11 @@ const updateById = async (req, res) => {
 
     await patient.save();
 
-    return res.status(200).json({
-      message: "Patient Updated Successfully",
-      updatedPatient: patient,
-    });
+    return res
+      .status(200)
+      .json(new ApiResponse(200,patient,"Patient updated successfully"));
   } catch (error) {
-    return res.status(500).json({
+    return res.status(error.statusCode || 500).json({
       message: "Failed to Update Patient Details",
       error: error.message,
     });
@@ -111,17 +120,17 @@ const deleteById = async (req, res) => {
     const patient = await Patient.findById(id);
 
     if (!patient) {
-      return res.status(404).json({ message: "Patient Not Found" });
+      throw new ApiError(404, "Patient not found");
     }
 
     await patient.deleteOne();
     return res
       .status(200)
-      .json({ message: "Patient Record Deleted Successfully" });
+      .json(new ApiResponse(200, "Patient deleted successfully"));
   } catch (error) {
     return res
-      .status(500)
-      .json({ message: "Cannot Delete Patient Details", error: error.message });
+      .status(error.statusCode || 500)
+      .json({ message: "Unable to  Delete Patient", error: error.message });
   }
 };
 export {
