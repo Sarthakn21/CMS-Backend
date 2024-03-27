@@ -128,4 +128,35 @@ const getAllUser = async (req, res) => {
     return res.status(error.statusCode || 500).json({ error: error.message });
   }
 };
-export { registerUser, loginUser, deleteById, getAllUser };
+
+const refreshAccessToken = async (req, res) => {
+  try {
+    const user = await User.findById(req.user?._id);
+    if (user?.refreshToken !== req.cookies?.refreshToken)
+      throw new ApiError(400, "Unauthorized request");
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+    user.refreshToken = refreshToken;
+    user.save({ validateBeforeSave: false });
+    res
+      .cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 24 * 60 * 60 * 1000,
+      })
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 10 * 24 * 60 * 60 * 1000,
+      })
+      .json(new ApiResponse(200, "Tokens updated successfully"));
+  } catch (error) {
+    return res
+      .status(error.statusCode || 500)
+      .json({
+        message: "Unable to generate access and refreshtoken",
+        error: error.message,
+      });
+  }
+};
+export { registerUser, loginUser, deleteById, getAllUser, refreshAccessToken };
