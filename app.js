@@ -11,8 +11,6 @@ import cookieParser from "cookie-parser";
 dotenv.config();
 const app = express();
 
-//removed all the unnecessary
-
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
