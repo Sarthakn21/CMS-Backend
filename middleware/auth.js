@@ -16,7 +16,7 @@ const authMiddleware = async (req, res, next) => {
     if (!token) throw new ApiError(401, "Unauthorized request");
     
     const decoded = jwt.verify(token, process.env.ACCESS_SECRET_KEY);
-    const user = await User.findById(decoded?._id);
+    const user = await User.findById(decoded?._id).select("-password");
     if (!user) {
       throw new ApiError(401, "Invalid Access Token");
     }

@@ -186,4 +186,33 @@ const logoutUser = async (req, res) => {
     });
   }
 };
-export { registerUser, loginUser,logoutUser, deleteById, getAllUser, refreshAccessToken };
+
+const changeCurrentPassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+  
+    const user = await User.findById(req.user?._id);
+  
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+  
+    if (!isPasswordCorrect) throw new ApiError(400, "Invalid password");
+  
+    user.password = newPassword;
+    await user.save({ validateBeforeSave: false });
+  
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Password changed successfully"));
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ error: error.message });
+  }
+};
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  deleteById,
+  getAllUser,
+  refreshAccessToken,
+  changeCurrentPassword,
+};

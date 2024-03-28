@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import {
+  changeCurrentPassword,
   deleteById,
   getAllUser,
   loginUser,
@@ -16,10 +17,11 @@ dotenv.config();
 
 const router = express.Router();
 
+router.route("/").get(authMiddleware,doctorMiddleware,getAllUser);
 router.route("/register").post(authMiddleware,doctorMiddleware, registerUser);
 router.route("/login").post(loginUser);
 router.route("/logout").post(authMiddleware,logoutUser);
 router.route("/delete/:id").delete(authMiddleware,doctorMiddleware,deleteById);
-router.route("/").get(authMiddleware,doctorMiddleware,getAllUser);
-router.route("/refreshAccessToken").post(verifyRefreshToken,refreshAccessToken);
+router.route("/changePassword").post(authMiddleware, changeCurrentPassword);
+router.route("/refreshAccessToken").post(verifyRefreshToken, refreshAccessToken);
 export default router;
