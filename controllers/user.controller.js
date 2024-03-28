@@ -159,4 +159,31 @@ const refreshAccessToken = async (req, res) => {
       });
   }
 };
-export { registerUser, loginUser, deleteById, getAllUser, refreshAccessToken };
+
+const logoutUser = async (req, res) => {
+
+  try {
+    await User.findByIdAndUpdate(
+      req.user._id,
+      { $unset: { refreshToken: 1 } },
+      { new: true }
+    );
+  
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+  
+    return res
+      .status(200)
+      .clearCookie("accessToken", options)
+      .clearCookie("refreshToken", options)
+      .json(new ApiResponse(200, {}, "User logged out successfully"));
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({
+      message: "logout unsuccessful",
+      error: error.message,
+    });
+  }
+};
+export { registerUser, loginUser,logoutUser, deleteById, getAllUser, refreshAccessToken };

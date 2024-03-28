@@ -4,17 +4,22 @@ import {
   deleteById,
   getAllUser,
   loginUser,
+  logoutUser,
   refreshAccessToken,
   registerUser,
 } from "../controllers/user.controller.js";
 import { verifyRefreshToken } from "../middleware/checkRefreshtoken.js";
+import authMiddleware from "../middleware/auth.js";
+import doctorMiddleware from "../middleware/isDoc.js";
+import receptionMiddleware from "../middleware/isReceptionist.js";
 dotenv.config();
 
 const router = express.Router();
 
-router.route("/register").post(registerUser);
+router.route("/register").post(authMiddleware,doctorMiddleware, registerUser);
 router.route("/login").post(loginUser);
-router.route("/delete/:id").delete(deleteById);
-router.route("/").get(getAllUser);
+router.route("/logout").post(authMiddleware,logoutUser);
+router.route("/delete/:id").delete(authMiddleware,doctorMiddleware,deleteById);
+router.route("/").get(authMiddleware,doctorMiddleware,getAllUser);
 router.route("/refreshAccessToken").post(verifyRefreshToken,refreshAccessToken);
 export default router;
