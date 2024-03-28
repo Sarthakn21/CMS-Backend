@@ -6,7 +6,6 @@ import {
 
 const router = express.Router();
 
-
 router.route("/").post(createAppointment);
 router.route("/").get(getAllAppointment);
 
