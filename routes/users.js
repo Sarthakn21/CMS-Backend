@@ -4,6 +4,7 @@ import {
   changeCurrentPassword,
   deleteById,
   getAllUser,
+  getCurrentUser,
   loginUser,
   logoutUser,
   refreshAccessToken,
@@ -24,4 +25,5 @@ router.route("/logout").post(authMiddleware, logoutUser);
 router.route("/delete/:id").delete(authMiddleware, doctorMiddleware, deleteById);
 router.route("/changePassword").post(authMiddleware, changeCurrentPassword);
 router.route("/refreshAccessToken").post(verifyRefreshToken, refreshAccessToken);
+router.route("/getCurrent").get(authMiddleware,getCurrentUser)
 export default router;

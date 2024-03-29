@@ -207,6 +207,21 @@ const changeCurrentPassword = async (req, res) => {
     return res.status(error.statusCode || 500).json({ error: error.message });
   }
 };
+const getCurrentUser = async (req, res) => {
+  try {
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          req.user,
+          "Current User fetched successfully"
+        )
+      );
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ error: error.message });
+  }
+};
 export {
   registerUser,
   loginUser,
@@ -215,4 +230,5 @@ export {
   getAllUser,
   refreshAccessToken,
   changeCurrentPassword,
+  getCurrentUser,
 };
