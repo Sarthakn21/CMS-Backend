@@ -26,7 +26,7 @@ mongoose
   .catch((error) => {
     console.log("Failed to connect to MongoDB", error);
   });
-
+  
 app.use("/api/patients", authMiddleware, patientsRouter);
 app.use("/api/users", userRouter);
 app.use("/api/appointments", authMiddleware, appointmentRoutes);

@@ -1,46 +1,47 @@
 import mongoose from "mongoose";
 
-const patientSchema = new mongoose.Schema({
+const patientSchema = new mongoose.Schema(
+  {
     patientId: {
-        type: String,
+      type: String,
     },
     name: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     contactNumber: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
-    Dob:{
-        type:Date,
-        required:true,
+    Dob: {
+      type: Date,
+      required: true,
     },
     age: {
-        type: Number,
-        required: true
-    },
-    address:{
-        type:String,
+      type: Number,
+      required: true,
     },
     weight: {
-        type: Number,
-        required: true
+      type: Number,
+      required: true,
     },
     gender: {
-        type: String,
-        enum: ['Male', 'Female', 'Other'],
-        required: true
+      type: String,
+      enum: ["Male", "Female", "Other"],
+      required: true,
     },
-    profileCreatedAt: {
-        type: Date,
-        default: Date.now
+    bloodGroup: {
+      type: String,
+      required: true,
     },
-    profileUpdatedAt: {
-        type: Date,
-        default: Date.now
-    }
-});
+    address: {
+      type: String,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 // Middleware to update profileUpdatedAt field when document is modified
 patientSchema.pre('save', async function() {

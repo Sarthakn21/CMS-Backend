@@ -7,8 +7,26 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 //api-url:http://localhost:5000/api/patients/register
 const createNewPatient = async (req, res) => {
   try {
-    const { name, contactNumber, age, weight, gender, Dob } = req.body;
-    if (!name || !contactNumber || !age || !weight || !gender || !Dob) {
+    const {
+      name,
+      contactNumber,
+      age,
+      weight,
+      gender,
+      Dob,
+      address,
+      bloodGroup,
+    } = req.body;
+    if (
+      !name ||
+      !contactNumber ||
+      !age ||
+      !weight ||
+      !gender ||
+      !Dob ||
+      !address ||
+      !bloodGroup
+    ) {
       throw new ApiError(400, "All fields are required to create new patient");
     }
 
@@ -19,6 +37,8 @@ const createNewPatient = async (req, res) => {
       weight,
       gender,
       Dob,
+      address,
+      bloodGroup,
     });
 
     res
@@ -81,10 +101,27 @@ const getPatientById = async (req, res) => {
 const updateById = async (req, res) => {
   try {
     const { id } = req.params;
-    const {name, contactNumber, age, weight, gender, Dob } =
-      req.body;
-    if (!name || !contactNumber || !age || !weight || !gender || !Dob) {
-      throw new ApiError(400,"All fields are required to update patient");
+    const {
+      name,
+      contactNumber,
+      age,
+      weight,
+      gender,
+      Dob,
+      address,
+      bloodGroup,
+    } = req.body;
+    if (
+      !name ||
+      !contactNumber ||
+      !age ||
+      !weight ||
+      !gender ||
+      !Dob ||
+      !address ||
+      !bloodGroup
+    ) {
+      throw new ApiError(400, "All fields are required to update patient");
     }
     const patient = await Patient.findById(id);
 
@@ -97,6 +134,8 @@ const updateById = async (req, res) => {
     patient.weight = weight;
     patient.gender = gender;
     patient.Dob = Dob;
+    patient.address = address;
+    patient.bloodGroup = bloodGroup;
 
     await patient.save();
 
