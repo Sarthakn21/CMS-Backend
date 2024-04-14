@@ -84,10 +84,11 @@ const getPatientById = async (req, res) => {
     // const patient = await Patient.findOne({ patientId: id });
 
     if (!patient) {
-      throw new ApiError(404, "No patient found")
-
+      throw new ApiError(404, "No patient found");
     }
-    res.status(200).json(new ApiResponse(200,patient,"fetched patient successfully"));
+    res
+      .status(200)
+      .json(new ApiResponse(200, patient, "fetched patient successfully"));
   } catch (error) {
     res
       .status(500)
@@ -141,7 +142,7 @@ const updateById = async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200,patient,"Patient updated successfully"));
+      .json(new ApiResponse(200, patient, "Patient updated successfully"));
   } catch (error) {
     return res.status(error.statusCode || 500).json({
       message: "Failed to Update Patient Details",
@@ -172,10 +173,34 @@ const deleteById = async (req, res) => {
       .json({ message: "Unable to  Delete Patient", error: error.message });
   }
 };
+
+// Add a new route for patient search
+// Method: GET
+// Endpoint: /api/patients/search
+const searchPatientsByName = async (req, res) => {
+  try {
+    const { name } = req.params;
+    if (!name) {
+      throw new ApiError(400, "Please provide a name to search for");
+    }
+    const patient = await Patient.find({
+      name: { $regex: new RegExp(name, "i") },
+    });
+    res
+      .status(200)
+      .json(new ApiResponse(200, patient, "Patients found successfully"));
+  } catch (error) {
+    res
+      .status(error.statusCode || 500)
+      .json({ message: "Failed to search patients", error: error.message });
+  }
+};
+
 export {
   createNewPatient,
   getAllPatient,
   getPatientById,
   updateById,
   deleteById,
+  searchPatientsByName,
 };

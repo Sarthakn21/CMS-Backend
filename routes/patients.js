@@ -4,6 +4,7 @@ import {
   deleteById,
   getAllPatient,
   getPatientById,
+  searchPatientsByName,
   updateById,
 } from "../controllers/patient.controller.js";
 import doctorMiddleware from "../middleware/isDoc.js";
@@ -15,5 +16,6 @@ router.route("/").get(getAllPatient);
 router.route("/:id").get(getPatientById);
 router.route("/update/:id").put(updateById);
 router.route("/delete/:id").delete(deleteById);
+router.route("/search/:name").get(searchPatientsByName);
 
 export default router;
