@@ -11,7 +11,12 @@ import cookieParser from "cookie-parser";
 dotenv.config();
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 
@@ -26,7 +31,7 @@ mongoose
   .catch((error) => {
     console.log("Failed to connect to MongoDB", error);
   });
-  
+
 app.use("/api/patients", authMiddleware, patientsRouter);
 app.use("/api/users", userRouter);
 app.use("/api/appointments", authMiddleware, appointmentRoutes);

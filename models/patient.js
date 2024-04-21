@@ -30,10 +30,6 @@ const patientSchema = new mongoose.Schema(
       enum: ["Male", "Female", "Other"],
       required: true,
     },
-    bloodGroup: {
-      type: String,
-      required: true,
-    },
     address: {
       type: String,
     },
@@ -44,11 +40,11 @@ const patientSchema = new mongoose.Schema(
 );
 
 // Middleware to update profileUpdatedAt field when document is modified
-patientSchema.pre('save', async function() {
-    if (this.isModified()) {
-        this.profileUpdatedAt = new Date();
-    }
+patientSchema.pre("save", async function () {
+  if (this.isModified()) {
+    this.profileUpdatedAt = new Date();
+  }
 });
 
-const Patient = mongoose.model('Patient', patientSchema);
+const Patient = mongoose.model("Patient", patientSchema);
 export default Patient;

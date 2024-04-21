@@ -9,8 +9,8 @@ import doctorMiddleware from "../middleware/isDoc.js";
 
 const router = express.Router();
 
-router.route("/").get(doctorMiddleware, getAllPrescription);
-router.route("/:patientId").get(doctorMiddleware, getPrecrptionById);
+router.route("/").get(getAllPrescription);
+router.route("/:patientId").get(getPrecrptionById);
 router.route("/add/:patientId").post(doctorMiddleware, addPrescription);
 router.route("/delete/:id").delete(doctorMiddleware, deletePrescriptionById);
 

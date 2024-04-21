@@ -7,16 +7,8 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 //api-url:http://localhost:5000/api/patients/register
 const createNewPatient = async (req, res) => {
   try {
-    const {
-      name,
-      contactNumber,
-      age,
-      weight,
-      gender,
-      Dob,
-      address,
-      bloodGroup,
-    } = req.body;
+    console.log("in create patient");
+    const { name, contactNumber, age, weight, gender, Dob, address } = req.body;
     if (
       !name ||
       !contactNumber ||
@@ -24,8 +16,7 @@ const createNewPatient = async (req, res) => {
       !weight ||
       !gender ||
       !Dob ||
-      !address ||
-      !bloodGroup
+      !address
     ) {
       throw new ApiError(400, "All fields are required to create new patient");
     }
@@ -38,8 +29,8 @@ const createNewPatient = async (req, res) => {
       gender,
       Dob,
       address,
-      bloodGroup,
     });
+    console.log(patient);
 
     res
       .status(201)

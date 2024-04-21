@@ -48,6 +48,9 @@ const addPrescription = async (req, res) => {
     const { medications } = req.body;
     const { symptoms } = req.body;
 
+    if (!symptoms || !medications || !patientId || medications.length == 0) {
+      throw new ApiError(404, "Fill all details");
+    }
     // Check if the patient exists
     const patient = await Patient.findById(patientId);
     if (!patient) {

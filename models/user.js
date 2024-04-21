@@ -8,13 +8,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    trim: true, // Remove the whitespaces
+    trim: true,
   },
   email: {
     type: String,
     required: true,
-    unique: true,
-    trim: true, // Remove the whitespaces
+    trim: true,
     lowercase: true,
     validate: {
       validator: (value) => {
@@ -29,9 +28,6 @@ const userSchema = new mongoose.Schema({
     required: true,
   },
   role: {
-    type: String,
-  },
-  refreshToken: {
     type: String,
   },
 });

@@ -7,6 +7,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 //api-url: http://localhost:5000/api/users/register
 const registerUser = async (req, res) => {
   try {
+    console.log(req);
     const { username, email, password, role } = req.body;
     if (!username || !email || !password || !role)
       throw new ApiError(400, "All feilds are required for registering");
@@ -22,9 +23,7 @@ const registerUser = async (req, res) => {
     const user = new User({ username, email, password, role });
     await user.save();
 
-    const registeredUser = await User.findById(user._id).select(
-      "-password -refreshToken"
-    );
+    const registeredUser = await User.findById(user._id).select("-password");
     if (!registeredUser) throw new ApiError(500, "Unable to register user");
     // res.status(201).json({ message: "User registered successfully", user });
     return res
@@ -38,15 +37,11 @@ const registerUser = async (req, res) => {
   }
 };
 
-const generateAccessAndRefreshToken = async (userId) => {
+const generateAccessToken = async (userId) => {
   try {
     const user = await User.findById(userId);
     const accessToken = user.generateAccessToken();
-    const refreshToken = user.generateRefreshToken();
-
-    user.refreshToken = refreshToken;
-    await user.save({ validateBeforeSave: false });
-    return { accessToken, refreshToken };
+    return { accessToken };
   } catch (error) {
     throw new ApiError(500, "Unable to generate Access and refresh token");
   }
@@ -74,13 +69,9 @@ const loginUser = async (req, res) => {
     const isPasswordCorrect = await user.comparePassword(password);
     if (!isPasswordCorrect) throw new ApiError(409, "Incorrect Password");
 
-    const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
-      user._id
-    );
+    const { accessToken } = await generateAccessToken(user._id);
 
-    const loggedInUser = await User.findById(user._id).select(
-      "-password -refreshToken"
-    );
+    const loggedInUser = await User.findById(user._id).select("-password");
 
     return res
       .status(200)
@@ -88,11 +79,6 @@ const loginUser = async (req, res) => {
         httpOnly: true,
         secure: true,
         maxAge: 7 * 24 * 60 * 60 * 1000,
-      })
-      .cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: true,
-        maxAge: 15 * 24 * 60 * 60 * 1000,
       })
       .json(new ApiResponse(200, loggedInUser, "User Logged in successfully"));
   } catch (error) {
@@ -151,29 +137,27 @@ const refreshAccessToken = async (req, res) => {
       })
       .json(new ApiResponse(200, "Tokens updated successfully"));
   } catch (error) {
-    return res
-      .status(error.statusCode || 500)
-      .json({
-        message: "Unable to generate access and refreshtoken",
-        error: error.message,
-      });
+    return res.status(error.statusCode || 500).json({
+      message: "Unable to generate access and refreshtoken",
+      error: error.message,
+    });
   }
 };
 
 const logoutUser = async (req, res) => {
-
   try {
+    console.log("in logout", req);
     await User.findByIdAndUpdate(
       req.user._id,
       { $unset: { refreshToken: 1 } },
       { new: true }
     );
-  
+
     const options = {
       httpOnly: true,
       secure: true,
     };
-  
+
     return res
       .status(200)
       .clearCookie("accessToken", options)
@@ -190,16 +174,16 @@ const logoutUser = async (req, res) => {
 const changeCurrentPassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
-  
+
     const user = await User.findById(req.user?._id);
-  
+
     const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
-  
+
     if (!isPasswordCorrect) throw new ApiError(400, "Invalid password");
-  
+
     user.password = newPassword;
     await user.save({ validateBeforeSave: false });
-  
+
     return res
       .status(200)
       .json(new ApiResponse(200, {}, "Password changed successfully"));
@@ -212,11 +196,7 @@ const getCurrentUser = async (req, res) => {
     return res
       .status(200)
       .json(
-        new ApiResponse(
-          200,
-          req.user,
-          "Current User fetched successfully"
-        )
+        new ApiResponse(200, req.user, "Current User fetched successfully")
       );
   } catch (error) {
     return res.status(error.statusCode || 500).json({ error: error.message });

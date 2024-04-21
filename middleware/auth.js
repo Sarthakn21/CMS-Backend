@@ -9,12 +9,13 @@ dotenv.config();
 const authMiddleware = async (req, res, next) => {
   try {
     // 1. Get the token from the request headers
+    console.log(req);
     const token =
       req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer ", "");
-    
+
     if (!token) throw new ApiError(401, "Unauthorized request");
-    
+
     const decoded = jwt.verify(token, process.env.ACCESS_SECRET_KEY);
     const user = await User.findById(decoded?._id).select("-password");
     if (!user) {
