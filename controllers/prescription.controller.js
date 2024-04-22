@@ -97,9 +97,35 @@ const deletePrescriptionById = async (req, res) => {
     return res.status(error.statusCode || 500).json({ error: error.message });
   }
 };
+//function to get particular prescription by id
+//method : Get
+//api-url:http://localhost:5000/api/prescription/get/:id
+const getPbyId = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if the prescription exists
+    const prescription = await Prescription.findById(id);
+    if (!prescription) {
+      throw new ApiError(404, "No prescription found to id");
+    }
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { prescription },
+          "Prescription fetched successfully"
+        )
+      );
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ error: error.message });
+  }
+};
 export {
   getAllPrescription,
   getPrecrptionById,
   addPrescription,
   deletePrescriptionById,
+  getPbyId,
 };
