@@ -7,7 +7,6 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 //api-url: http://localhost:5000/api/users/register
 const registerUser = async (req, res) => {
   try {
-    console.log(req);
     const { username, email, password, role } = req.body;
     if (!username || !email || !password || !role)
       throw new ApiError(400, "All feilds are required for registering");
@@ -17,21 +16,21 @@ const registerUser = async (req, res) => {
     });
 
     if (existingUser) {
-      return res.status(400).json({ message: "Username already exists" });
+      throw new ApiError(400, "User already exists");
     }
 
     const user = new User({ username, email, password, role });
     await user.save();
-
+    // console.log(user);
     const registeredUser = await User.findById(user._id).select("-password");
     if (!registeredUser) throw new ApiError(500, "Unable to register user");
-    // res.status(201).json({ message: "User registered successfully", user });
     return res
       .status(201)
       .json(
         new ApiResponse(200, registeredUser, "User registered successfully")
       );
   } catch (error) {
+    console.log("in error block", error);
     return res.status(error.statusCode || 500).json({ error: error.message });
     next(error);
   }

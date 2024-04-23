@@ -61,4 +61,25 @@ const getAllAppointment = async (req, res) => {
   }
 };
 
-export { createAppointment, getAllAppointment };
+//function to delete particular appointment by id
+//method : Delete
+//api-url:http://localhost:5000/api/appointments/delete/:id
+const deleteAppointmentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if the prescription exists
+    const appointment = await Appointment.findById(id);
+    if (!appointment) {
+      throw new ApiError(404, "No prescription found to id");
+    }
+    await appointment.deleteOne();
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "appointment deleted successfully"));
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ error: error.message });
+  }
+};
+
+export { createAppointment, getAllAppointment, deleteAppointmentById };
