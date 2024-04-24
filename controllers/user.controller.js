@@ -70,7 +70,7 @@ const loginUser = async (req, res) => {
 
     const { accessToken } = await generateAccessToken(user._id);
 
-    const loggedInUser = await User.findById(user._id).select("-password");
+    const loggedInUser = await User.findById(user._id).select("-password -_id");
 
     return res
       .status(200)
@@ -94,7 +94,6 @@ const deleteById = async (req, res) => {
     const user = await User.findById(id);
     if (!user) {
       throw new ApiError(404, "User not found");
-      // res.status(404).json("user not found");
     }
     await user.deleteOne();
 
