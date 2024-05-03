@@ -90,7 +90,8 @@ const loginUser = async (req, res) => {
 //api-url: http://localhost:5000/api/users/delete/:id
 const deleteById = async (req, res) => {
   try {
-    const id = req.params.id;
+    const { id } = req.params;
+    console.log("this is  id", id);
     const user = await User.findById(id);
     if (!user) {
       throw new ApiError(404, "User not found");
